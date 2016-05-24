@@ -35,8 +35,8 @@ namespace ServiceStack.Text.Demo
                         Thread.Sleep(1000);
                     }
                 }
-                catch (Exception e)
-                {
+                catch 
+                {                    
                     //File.AppendAllText("d:\\BusPOI_log.txt", e.Message.ToString());
                     continue;
                 }
@@ -91,15 +91,15 @@ namespace ServiceStack.Text.Demo
                                         model.keyword = "";
                                         model.name = item.Where(a => a.Key == "name").FirstOrDefault().Value;
                                         //model.type = item.Where(a => a.Key == "std_tag").FirstOrDefault().Value!=null?item.Where(a => a.Key == "std_tag").FirstOrDefault().Value:" ";
-                                        string cla = item.Where(a => a.Key == "cla").FirstOrDefault().Value;
-                                        MatchCollection mc = Regex.Matches(cla, @"[\u4e00-\u9fa5]+");
-                                        foreach (Match m in mc)
-                                        {
-                                            if (m.Success)
-                                            {
-                                                model.type += m.Value + ";";
-                                            }
-                                        }
+                                        model.type =Helper.ReplaceHtmlTag(item.Where(a => a.Key == "cla").FirstOrDefault().Value);
+                                        //MatchCollection mc = Regex.Matches(cla, @"[\u4e00-\u9fa5]+");
+                                        //foreach (Match m in mc)
+                                        //{
+                                        //    if (m.Success)
+                                        //    {
+                                        //        model.type += m.Value + ";";
+                                        //    }
+                                        //}
                                         model.uid = item.Where(a => a.Key == "uid").FirstOrDefault().Value;
                                         string x = item.Where(a => a.Key == "x").FirstOrDefault().Value;
                                         model.x = Convert.ToDouble(x.Substring(0, x.Length - 2) + "." + x.Substring(x.Length - 2));
@@ -148,6 +148,7 @@ namespace ServiceStack.Text.Demo
                     {
                         Console.WriteLine("========");
                         Console.WriteLine("存储错误");
+                        Console.WriteLine(ex.Message);
                         Console.WriteLine("========");
                     }
 
@@ -156,6 +157,7 @@ namespace ServiceStack.Text.Demo
                         
                         Console.WriteLine("========");
                         Console.WriteLine("请处理有问题的JSON");
+                        Console.WriteLine(e.Message);
                         //Console.WriteLine("请处理有问题的JSON：" + e.LinePosition);
                         //Console.WriteLine("请处理有问题的JSON：" + e.Message.ToString());
                         //Console.WriteLine("JSON路径：" + e.Path);

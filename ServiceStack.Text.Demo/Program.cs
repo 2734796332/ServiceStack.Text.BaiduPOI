@@ -1,13 +1,9 @@
 ﻿using BaiduBusFiddler;
 using Fiddler;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ServiceStack.Text.Demo
 {
@@ -153,11 +149,11 @@ namespace ServiceStack.Text.Demo
                     }
 
                     catch (Exception e)
-                    {
-                        
+                    {                       
                         Console.WriteLine("========");
                         Console.WriteLine("请处理有问题的JSON");
                         Console.WriteLine(e.Message);
+                        Console.WriteLine(str);
                         //Console.WriteLine("请处理有问题的JSON：" + e.LinePosition);
                         //Console.WriteLine("请处理有问题的JSON：" + e.Message.ToString());
                         //Console.WriteLine("JSON路径：" + e.Path);

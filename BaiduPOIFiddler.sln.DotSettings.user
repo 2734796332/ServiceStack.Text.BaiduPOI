@@ -1,0 +1,8 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Profiling/ConfigurationKey/@EntryValue">Tracing</s:String>
+	<s:Boolean x:Key="/Default/RunConfigs/Config/=BA806C8C854B9849BCF78C18D0E7A44E/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/RunConfigs/Config/=BA806C8C854B9849BCF78C18D0E7A44E/Type/@EntryValue">project</s:String>
+	<s:String x:Key="/Default/RunConfigs/Config/=BA806C8C854B9849BCF78C18D0E7A44E/Name/@EntryValue">Kiwi</s:String>
+	<s:String x:Key="/Default/RunConfigs/Config/=BA806C8C854B9849BCF78C18D0E7A44E/ProjectGuid/@EntryValue">E914D41A4EF3DB4FA1399E1DD358F0CC</s:String>
+	<s:String x:Key="/Default/RunConfigs/Config/=BA806C8C854B9849BCF78C18D0E7A44E/DefaultAction/@EntryValue">profile</s:String>
+	<s:String x:Key="/Default/RunConfigs/Active/@EntryValue">BA806C8C854B9849BCF78C18D0E7A44E</s:String></wpf:ResourceDictionary>

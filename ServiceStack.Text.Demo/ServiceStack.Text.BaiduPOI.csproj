@@ -46,6 +46,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Lib\FiddlerCore4.dll</HintPath>
     </Reference>
+    <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.6.9.8\lib\net45\MySql.Data.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Lib\Newtonsoft.Json.dll</HintPath>
@@ -55,6 +59,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Runtime.Serialization" />
@@ -66,56 +71,36 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="baidupoi.cs">
-      <DependentUpon>BaiduPOIContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="BaiduPOIContext.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>BaiduPOIContext.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="BaiduPOIContext.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>BaiduPOIContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="BaiduPOIContext.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>BaiduPOIContext.edmx</DependentUpon>
-    </Compile>
     <Compile Include="Helper.cs" />
+    <Compile Include="Models\Generated\Database.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Database.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PetaPoco.cs" />
+    <Compile Include="PoiBase.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <EntityDeploy Include="BaiduPOIContext.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>BaiduPOIContext.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <None Include="BaiduPOIContext.edmx.diagram">
-      <DependentUpon>BaiduPOIContext.edmx</DependentUpon>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
     </None>
+    <None Include="Models\Generated\PetaPoco.Core.ttinclude" />
+    <None Include="Models\Generated\PetaPoco.Generator.ttinclude" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="BaiduPOIContext.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>BaiduPOIContext.edmx</DependentUpon>
-      <LastGenOutput>BaiduPOIContext.Context.cs</LastGenOutput>
-    </Content>
-    <Content Include="BaiduPOIContext.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>BaiduPOIContext.edmx</DependentUpon>
-      <LastGenOutput>BaiduPOIContext.cs</LastGenOutput>
-    </Content>
     <Content Include="Lib\BCMakeCert.dll" />
     <Content Include="Lib\CertMaker.dll" />
     <Content Include="Lib\FiddlerCore4.dll" />
     <Content Include="Lib\FiddlerCore4.XML" />
     <Content Include="Lib\makecert.exe" />
     <Content Include="Lib\Newtonsoft.Json.dll" />
+    <Content Include="Models\Generated\Database.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Database.cs</LastGenOutput>
+    </Content>
     <Content Include="pan.ico" />
   </ItemGroup>
   <ItemGroup>

@@ -1,0 +1,14 @@
+C:\Users\Kiwi\Desktop\小侯点这里\BaiduFiddler.20160505\ServiceStack.Text.Demo\bin\Debug\ServiceStack.Text.Demo.exe
+C:\Users\Kiwi\Desktop\小侯点这里\BaiduFiddler.20160505\ServiceStack.Text.Demo\bin\Debug\ServiceStack.Text.dll
+C:\Users\Kiwi\Desktop\小侯点这里\BaiduFiddler.20160505\ServiceStack.Text.Demo\bin\Debug\EntityFramework.dll
+C:\Users\Kiwi\Desktop\小侯点这里\BaiduFiddler.20160505\ServiceStack.Text.Demo\bin\Debug\FiddlerCore4.dll
+C:\Users\Kiwi\Desktop\小侯点这里\BaiduFiddler.20160505\ServiceStack.Text.Demo\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Kiwi\Desktop\小侯点这里\BaiduFiddler.20160505\ServiceStack.Text.Demo\bin\Debug\ServiceStack.Text.Demo.exe.config
+C:\Users\Kiwi\Desktop\小侯点这里\BaiduFiddler.20160505\ServiceStack.Text.Demo\bin\Debug\ServiceStack.Text.Demo.pdb
+C:\Users\Kiwi\Desktop\小侯点这里\BaiduFiddler.20160505\ServiceStack.Text.Demo\bin\Debug\BCMakeCert.dll
+C:\Users\Kiwi\Desktop\小侯点这里\BaiduFiddler.20160505\ServiceStack.Text.Demo\bin\Debug\EntityFramework.xml
+C:\Users\Kiwi\Desktop\小侯点这里\BaiduFiddler.20160505\ServiceStack.Text.Demo\bin\Debug\FiddlerCore4.xml
+C:\Users\Kiwi\Desktop\小侯点这里\BaiduFiddler.20160505\ServiceStack.Text.Demo\bin\Debug\ServiceStack.Text.xml
+C:\Users\Kiwi\Desktop\小侯点这里\BaiduFiddler.20160505\ServiceStack.Text.Demo\bin\Debug\zh-Hans\EntityFramework.resources.dll
+C:\Users\Kiwi\Desktop\小侯点这里\BaiduFiddler.20160505\ServiceStack.Text.Demo\obj\Debug\ServiceStack.Text.Demo.exe
+C:\Users\Kiwi\Desktop\小侯点这里\BaiduFiddler.20160505\ServiceStack.Text.Demo\obj\Debug\ServiceStack.Text.Demo.pdb

@@ -1,8 +1,10 @@
 ﻿using BaiduBusFiddler;
 using Fiddler;
+using PetaPoco;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 
 namespace ServiceStack.Text.Demo
@@ -16,7 +18,6 @@ namespace ServiceStack.Text.Demo
         static Queue<Fiddler.Session> QueueSessions = new Queue<Session>();
         private static void WriteToDB()
         {
-
             while (true)
             {
                 try
@@ -24,15 +25,18 @@ namespace ServiceStack.Text.Demo
                     if (QueueSessions.Count > 0)
                     {
                         Session oSession = QueueSessions.Dequeue();
-                        WriteToFiles(oSession);
+                        if (oSession != null)
+                        {
+                            WriteToFiles(oSession);
+                        }
                     }
                     else
                     {
                         Thread.Sleep(1000);
                     }
                 }
-                catch 
-                {                    
+                catch
+                {
                     //File.AppendAllText("d:\\BusPOI_log.txt", e.Message.ToString());
                     continue;
                 }
@@ -41,123 +45,162 @@ namespace ServiceStack.Text.Demo
         private static void WriteToFiles(Session dataReceived)
         {
             //oS.utilDecodeResponse();       //针对js可解析         
-            if (dataReceived.oResponse.MIMEType == "text/javascript")
+            if (dataReceived.oResponse.MIMEType == "text/javascript")//application/json
+            //if (dataReceived.oResponse.MIMEType == "application/json")//application/json
+
             {
                 Session iSeesion = new Session(new SessionData(dataReceived));
                 while ((iSeesion.state <= SessionStates.ReadingResponse))
                 {
                     continue;
                 }
-                if (dataReceived.fullUrl.Contains("newmap"))
+                if (dataReceived.fullUrl.Contains("newmap"))//poiInfo//newmap
                 {
                     iSeesion.utilDecodeResponse();
                     string str = iSeesion.GetResponseBodyAsString();
+
                     str = Helper.UnicodeToGb(str);
-                    str = str.Trim();
-                    try
+                    if (str != null)
                     {
-                        if (str.Contains("place_info"))
+                        try
                         {
-                            //for (int i = 0; i < str.Length; i++)
-                            //{
-                            //    if (str[i] >= 0x4e00 && str[i] <= 0x9fbb)
-                            //    {
-                            //        if (str[i - 1] == '\\')
-                            //        {
-                            //            str = str.Remove(i - 1, 1);
-                            //        }
-                            //    }
-                            //}                 
+                            str = str.Trim();
+                            if (str.Contains("place_info"))
+                            {
+                                #region 
+                                JsonObject jobj = JsonObject.Parse(str);
+                                jobj.TryGetValue("content", out str);
+                                JsonArrayObjects content = JsonArrayObjects.Parse(str);
+                                #region EF版本
+                                /*
+                                using (BaiduPOIEntities db = new BaiduPOIEntities())
+                                {
+                                    foreach (var item in content)
+                                    {
+                                        //var model = new baidupoi();
+                                        string uid = item.Where(a => a.Key == "uid").FirstOrDefault().Value;
+                                        var model = db.baidupoi.Where(a => a.uid == uid).FirstOrDefault();
+                                        if (model == null)
+                                        {
+                                            model = new baidupoi();
+                                            model.address = item.Where(a => a.Key == "addr").FirstOrDefault().Value;
+                                            model.keyword = "";
+                                            model.name = item.Where(a => a.Key == "name").FirstOrDefault().Value;
+                                            //model.type = item.Where(a => a.Key == "std_tag").FirstOrDefault().Value!=null?item.Where(a => a.Key == "std_tag").FirstOrDefault().Value:" ";
+                                            model.type = Helper.ReplaceHtmlTag(item.Where(a => a.Key == "cla").FirstOrDefault().Value);
+                                            //MatchCollection mc = Regex.Matches(cla, @"[\u4e00-\u9fa5]+");
+                                            //foreach (Match m in mc)
+                                            //{
+                                            //    if (m.Success)
+                                            //    {
+                                            //        model.type += m.Value + ";";
+                                            //    }
+                                            //}
+                                            model.uid = item.Where(a => a.Key == "uid").FirstOrDefault().Value;
+                                            string x = item.Where(a => a.Key == "x").FirstOrDefault().Value;
+                                            model.x = Convert.ToDouble(x.Substring(0, x.Length - 2) + "." + x.Substring(x.Length - 2));
+                                            string y = item.Where(a => a.Key == "y").FirstOrDefault().Value;
+                                            model.y = Convert.ToDouble(y.Substring(0, y.Length - 2) + "." + y.Substring(y.Length - 2));
+                                            model.keyword = DateTime.Now.ToString();
+                                            db.baidupoi.Add(model);
+                                        }
+                                    }
+                                    db.SaveChanges();
+                                } 
+                            */
+                                #endregion
+                                #endregion
+                                #region JSON.NET程序
+                                /*
 
-                            #region 
-                            JsonObject jobj = JsonObject.Parse(str);
-                            jobj.TryGetValue("content", out str);
-                            JsonArrayObjects content = JsonArrayObjects.Parse(str);
-                            using (BaiduPOIEntities db = new BaiduPOIEntities())
-                            {
-                                foreach (var item in content)
+                                Newtonsoft.Json.Linq.JObject obj = (Newtonsoft.Json.Linq.JObject)JsonConvert.DeserializeObject(str);
+                                JArray content = obj.Value<JArray>("content");
+                                using (BaiduPOIEntities db = new BaiduPOIEntities())
                                 {
-                                    //var model = new baidupoi();
-                                    string uid = item.Where(a => a.Key == "uid").FirstOrDefault().Value;
-                                    var model = db.baidupoi.Where(a => a.uid == uid).FirstOrDefault();
-                                    if (model == null)
+                                    foreach (var item in content)
                                     {
-                                        model = new baidupoi();
-                                        model.address = item.Where(a => a.Key == "addr").FirstOrDefault().Value;
-                                        model.keyword = "";
-                                        model.name = item.Where(a => a.Key == "name").FirstOrDefault().Value;
-                                        //model.type = item.Where(a => a.Key == "std_tag").FirstOrDefault().Value!=null?item.Where(a => a.Key == "std_tag").FirstOrDefault().Value:" ";
-                                        model.type =Helper.ReplaceHtmlTag(item.Where(a => a.Key == "cla").FirstOrDefault().Value);
-                                        //MatchCollection mc = Regex.Matches(cla, @"[\u4e00-\u9fa5]+");
-                                        //foreach (Match m in mc)
-                                        //{
-                                        //    if (m.Success)
-                                        //    {
-                                        //        model.type += m.Value + ";";
-                                        //    }
-                                        //}
-                                        model.uid = item.Where(a => a.Key == "uid").FirstOrDefault().Value;
-                                        string x = item.Where(a => a.Key == "x").FirstOrDefault().Value;
-                                        model.x = Convert.ToDouble(x.Substring(0, x.Length - 2) + "." + x.Substring(x.Length - 2));
-                                        string y = item.Where(a => a.Key == "y").FirstOrDefault().Value;
-                                        model.y = Convert.ToDouble(y.Substring(0, y.Length - 2) + "." + y.Substring(y.Length - 2));
-                                        db.baidupoi.Add(model);
+                                        //var model = new baidupoi();
+                                        string uid = item.Value<string>("uid");
+                                        var model = db.baidupoi.Where(a => a.uid == uid).FirstOrDefault();
+                                        if (model == null)
+                                        {
+                                            model = new baidupoi();
+                                            model.address = item.Value<string>("addr");
+                                            model.keyword = "";
+                                            model.name = item.Value<string>("name");
+                                            model.type = item.Value<string>("std_tag");
+                                            model.uid = item.Value<string>("uid");
+                                            string x = item.Value<string>("x");
+                                            model.x = Convert.ToDouble(x.Substring(0, x.Length - 2) + "." + x.Substring(x.Length - 2));
+                                            string y = item.Value<string>("y");
+                                            model.y = Convert.ToDouble(y.Substring(0, y.Length - 2) + "." + y.Substring(y.Length - 2));
+                                            db.baidupoi.Add(model);
+                                        }
+                                    }
+                                    db.SaveChanges();
+                                } 
+                                 */
+                                #endregion
+                                //                            
+                                using (Database db = new Database("DefaultConnection"))
+                                {
+                                    foreach (var item in content)
+                                    {
+                                        string uid = item.FirstOrDefault(a => a.Key == "uid").Value;
+                                        string dalModelName = "poi_qingdao";
+                                        var sql = Sql.Builder.Select("count(*)").From(dalModelName).Where("uid=@0", uid);
+                                        var count = db.ExecuteScalar<int>(sql);
+                                        if (count ==0)
+                                        {
+                                            PoiBase model = new PoiBase(); 
+                                            model.address = item.FirstOrDefault(a => a.Key == "addr").Value;
+                                            model.name = item.FirstOrDefault(a => a.Key == "name").Value;
+                                            model.type = Helper.ReplaceHtmlTag(item.FirstOrDefault(a => a.Key == "cla").Value);
+                                            model.uid = item.FirstOrDefault(a => a.Key == "uid").Value;
+                                            string x = item.FirstOrDefault(a => a.Key == "x").Value;
+                                            model.x = Convert.ToDouble(x.Substring(0, x.Length - 2) + "." + x.Substring(x.Length - 2));
+                                            string y = item.FirstOrDefault(a => a.Key == "y").Value;
+                                            model.y = Convert.ToDouble(y.Substring(0, y.Length - 2) + "." + y.Substring(y.Length - 2));
+                                            model.time = DateTime.Now;
+                                            model.taskid =db.FirstOrDefault<task>("SELECT * FROM `task` WHERE state=1").id;
+                                            //db.Insert(model);
+                                            string strSql =
+                                                String.Format(
+                                                    "insert into {0} (address,name,uid,x,y,type,time,taskid) values('{1}','{2}','{3}',{4},{5},'{6}','{7}',{8});",dalModelName,model.address,model.name,model.uid,model.x,model.y,model.type,model.time,model.taskid
+                                                    );
+                                            if (!(db.Execute(strSql) > 0))
+                                            {
+                                                Console.WriteLine("存储有误");
+                                            }
+                                        }
                                     }
                                 }
-                                db.SaveChanges();
-                            }                   
-                            #endregion
-                            #region JSON.NET程序
-                            /*
-                            
-                            Newtonsoft.Json.Linq.JObject obj = (Newtonsoft.Json.Linq.JObject)JsonConvert.DeserializeObject(str);
-                            JArray content = obj.Value<JArray>("content");
-                            using (BaiduPOIEntities db = new BaiduPOIEntities())
-                            {
-                                foreach (var item in content)
-                                {
-                                    //var model = new baidupoi();
-                                    string uid = item.Value<string>("uid");
-                                    var model = db.baidupoi.Where(a => a.uid == uid).FirstOrDefault();
-                                    if (model == null)
-                                    {
-                                        model = new baidupoi();
-                                        model.address = item.Value<string>("addr");
-                                        model.keyword = "";
-                                        model.name = item.Value<string>("name");
-                                        model.type = item.Value<string>("std_tag");
-                                        model.uid = item.Value<string>("uid");
-                                        string x = item.Value<string>("x");
-                                        model.x = Convert.ToDouble(x.Substring(0, x.Length - 2) + "." + x.Substring(x.Length - 2));
-                                        string y = item.Value<string>("y");
-                                        model.y = Convert.ToDouble(y.Substring(0, y.Length - 2) + "." + y.Substring(y.Length - 2));
-                                        db.baidupoi.Add(model);
-                                    }
-                                }
-                                db.SaveChanges();
-                            } 
-                             */
-                            #endregion
+                            }
                         }
-                    }
-                    catch (System.Data.Entity.Validation.DbEntityValidationException ex) 
-                    {
-                        Console.WriteLine("========");
-                        Console.WriteLine("存储错误");
-                        Console.WriteLine(ex.Message);
-                        Console.WriteLine("========");
-                    }
+                        catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+                        {
+                            Console.WriteLine("========");
+                            Console.WriteLine("存储错误");
+                            Console.WriteLine(ex.Message);
+                            Console.WriteLine("========");
+                        }
+                        catch (StackOverflowException e)
+                        {
+                            Console.WriteLine("========");
+                            Console.WriteLine("请处理有问题的JSON");
+                            Console.WriteLine(e.Message);
+                            Console.WriteLine(str);
+                            //Console.WriteLine("请处理有问题的JSON：" + e.LinePosition);
+                            //Console.WriteLine("请处理有问题的JSON：" + e.Message.ToString());
+                            //Console.WriteLine("JSON路径：" + e.Path);
+                            Console.WriteLine("========");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("===未知错误==");
+                            Console.WriteLine(e.Message);
 
-                    catch (Exception e)
-                    {                       
-                        Console.WriteLine("========");
-                        Console.WriteLine("请处理有问题的JSON");
-                        Console.WriteLine(e.Message);
-                        Console.WriteLine(str);
-                        //Console.WriteLine("请处理有问题的JSON：" + e.LinePosition);
-                        //Console.WriteLine("请处理有问题的JSON：" + e.Message.ToString());
-                        //Console.WriteLine("JSON路径：" + e.Path);
-                        Console.WriteLine("========");
+                        }
                     }
 
                 }
@@ -167,53 +210,19 @@ namespace ServiceStack.Text.Demo
             }
         }
 
-
-        //public static object GetPropertyValue(object info, string field)
-        //{
-        //    if (info == null) return null;
-        //    Type t = info.GetType();
-        //    IEnumerable<System.Reflection.PropertyInfo> property = from pi in t.GetProperties() where pi.Name.ToLower() == field.ToLower() select pi;
-        //    return property.First().GetValue(info, null);
-        //} 
-        /// <summary>
-        /// 获取一个类指定的属性值
-        /// </summary>
-        /// <param name="info">object对象</param>
-        /// <param name="field">属性名称</param>
-        /// <returns></returns>
-        public static object GetPropertyValue(object info, string field)
-        {
-            if (info == null) return null;
-            Type t = info.GetType();
-            IEnumerable<System.Reflection.PropertyInfo> property = from pi in t.GetProperties() where pi.Name.ToLower() == field.ToLower() select pi;
-            return property.First().GetValue(info, null);
-        }
-
-
         static void Main(string[] args)
         {
-            List<Fiddler.Session> oAllSessions = new List<Fiddler.Session>();
 
             Fiddler.FiddlerApplication.SetAppDisplayName("FiddlerKiwi");
-
             #region AttachEventListeners
 
-            Fiddler.FiddlerApplication.OnNotification += delegate(object sender, NotificationEventArgs oNEA)
+            Fiddler.FiddlerApplication.OnNotification += delegate (object sender, NotificationEventArgs oNEA)
             {
                 Console.WriteLine("**通知: " + oNEA.NotifyString);
             };
-            //Fiddler.FiddlerApplication.Log.OnLogString += delegate(object sender, LogEventArgs oLEA)
-            //{
-            //    Console.WriteLine("**日志: " + oLEA.LogString);
-            //};
-
-
-            Fiddler.FiddlerApplication.BeforeRequest += delegate(Fiddler.Session oS)
+            Fiddler.FiddlerApplication.BeforeRequest += delegate (Fiddler.Session oS)
             {
                 oS.bBufferResponse = false;
-                Monitor.Enter(oAllSessions);//添加session时必须加排他锁
-                oAllSessions.Add(oS);
-                Monitor.Exit(oAllSessions);
                 oS["X-AutoAuth"] = "(default)";
                 oS.RequestHeaders["Accept-Encoding"] = "gzip, deflate";
                 if ((oS.oRequest.pipeClient.LocalPort == iSecureEndpointPort) && (oS.hostname == sSecureEndpointHostname))
@@ -226,7 +235,7 @@ namespace ServiceStack.Text.Demo
                 }
             };
             //Kiwi：raw原生的，获得原生数据参数的事件。decompressed（解压缩）chunk（块），gracefully（优雅的地），invalid（无效的），EXACTLY（完全正确）,compatible（兼容的）,Decryption（解码）, E.g.例如，masquerading（伪装）
-            Fiddler.FiddlerApplication.AfterSessionComplete += delegate(Fiddler.Session oS)
+            Fiddler.FiddlerApplication.AfterSessionComplete += delegate (Fiddler.Session oS)
             {
                 if (oS != null)
                 {
@@ -245,6 +254,11 @@ namespace ServiceStack.Text.Demo
             CreateAndTrustRoot();
             int iPort = 8877;//设置为0，程序自动选择可用端口
             writeThread.Start();
+            //改为线程池
+            //ThreadPool.QueueUserWorkItem(o =>
+            //{
+            //    WriteToDB();
+            //});
             Fiddler.FiddlerApplication.Startup(iPort, oFCSF);
             #region 日志系统
             FiddlerApplication.Log.LogFormat("Created endpoint listening on port {0}", iPort);
@@ -272,11 +286,11 @@ namespace ServiceStack.Text.Demo
                 switch (Char.ToLower(cki.KeyChar))
                 {
                     case 'c':
-                        Monitor.Enter(oAllSessions);
-                        oAllSessions.Clear();
-                        Monitor.Exit(oAllSessions);
-                        WriteCommandResponse("Clear...");
-                        FiddlerApplication.Log.LogString("Cleared session list.");
+                        //Monitor.Enter(oAllSessions);
+                        //oAllSessions.Clear();
+                        //Monitor.Exit(oAllSessions);
+                        //WriteCommandResponse("Clear...");
+                        //FiddlerApplication.Log.LogString("Cleared session list.");
                         break;
 
                     case 'd':
@@ -285,7 +299,7 @@ namespace ServiceStack.Text.Demo
                         break;
 
                     case 'l':
-                        WriteSessionList(oAllSessions);//【Kiwi】
+                        //WriteSessionList(oAllSessions);//【Kiwi】
                         break;
 
                     case 'g':
@@ -349,28 +363,28 @@ namespace ServiceStack.Text.Demo
             }
             return true;
         }
-        private static void WriteSessionList(List<Fiddler.Session> oAllSessions)
-        {
-            ConsoleColor oldColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("Session list contains...");
-            //放到一个try块中
-            try
-            {
-                Monitor.Enter(oAllSessions);//Monitor Kiwi-?
-                foreach (Session oS in oAllSessions)
-                {
-                    //MIME Type，资源的媒体类型
-                    Console.Write(String.Format("{0} {1} {2}\n{3} {4}\n\n", oS.id, oS.oRequest.headers.HTTPMethod, Ellipsize(oS.fullUrl, 60), oS.responseCode, oS.oResponse.MIMEType));
-                }
-            }
-            finally
-            {
-                Monitor.Exit(oAllSessions);
-            }
-            Console.WriteLine();
-            Console.ForegroundColor = oldColor;
-        }
+        //private static void WriteSessionList(List<Fiddler.Session> oAllSessions)
+        //{
+        //    ConsoleColor oldColor = Console.ForegroundColor;
+        //    Console.ForegroundColor = ConsoleColor.White;
+        //    Console.WriteLine("Session list contains...");
+        //    //放到一个try块中
+        //    try
+        //    {
+        //        Monitor.Enter(oAllSessions);//Monitor Kiwi-?
+        //        foreach (Session oS in oAllSessions)
+        //        {
+        //            //MIME Type，资源的媒体类型
+        //            Console.Write(String.Format("{0} {1} {2}\n{3} {4}\n\n", oS.id, oS.oRequest.headers.HTTPMethod, Ellipsize(oS.fullUrl, 60), oS.responseCode, oS.oResponse.MIMEType));
+        //        }
+        //    }
+        //    finally
+        //    {
+        //        Monitor.Exit(oAllSessions);
+        //    }
+        //    Console.WriteLine();
+        //    Console.ForegroundColor = oldColor;
+        //}
         /// <summary>
         /// 超过长度时的显示方式
         /// </summary>
